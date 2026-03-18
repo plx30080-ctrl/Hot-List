@@ -58,9 +58,16 @@
 
     // ── Claude API call ────────────────────────────────────────────────────
     async function generateBullets(inputText) {
+      const apiKey = localStorage.getItem("eb_api_key") || "";
+      if (!apiKey) throw new Error("NO_API_KEY");
       const res = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true",
+        },
         body: JSON.stringify({
           model: "claude-sonnet-4-20250514",
           max_tokens: 1000,
@@ -242,7 +249,11 @@ ${inputText}`,
           const result = await generateBullets(inputText);
           setPreview(result);
         } catch (e) {
-          setError("Could not parse candidate. Please check your input and try again.");
+          if (e.message === "NO_API_KEY") {
+            setError("No API key set. Please add your Anthropic API key in the Settings tab.");
+          } else {
+            setError("Could not parse candidate. Please check your input and try again.");
+          }
         } finally {
           setLoading(false);
         }
@@ -798,6 +809,14 @@ ${inputText}`,
     function SettingsPage({ locations, setLocations, industries, setIndustries }) {
       const [newLoc, setNewLoc] = useState("");
       const [newInd, setNewInd] = useState("");
+      const [apiKey, setApiKey] = useState(() => localStorage.getItem("eb_api_key") || "");
+      const [apiKeySaved, setApiKeySaved] = useState(false);
+
+      const saveApiKey = () => {
+        localStorage.setItem("eb_api_key", apiKey.trim());
+        setApiKeySaved(true);
+        setTimeout(() => setApiKeySaved(false), 2000);
+      };
 
       const addLocation = () => {
         if (!newLoc.trim()) return;
@@ -836,6 +855,27 @@ ${inputText}`,
           <p style={{ color: EB.gray600, fontSize: 14, marginBottom: 28 }}>
             Manage markets and industries. Changes take effect immediately.
           </p>
+
+          {/* API Key */}
+          <div style={{ background: EB.white, borderRadius: 12, border: `1px solid ${EB.gray200}`, padding: 24, marginBottom: 24 }}>
+            <h3 style={{ fontFamily: "'Trebuchet MS', sans-serif", color: EB.purple, marginBottom: 8, fontSize: 16 }}>
+              Anthropic API Key
+            </h3>
+            <p style={{ color: EB.gray600, fontSize: 13, marginBottom: 14 }}>
+              Required to generate candidate bullets. Your key is stored only in this browser and never sent anywhere except directly to Anthropic.
+            </p>
+            <div style={{ display: "flex", gap: 10 }}>
+              <input
+                type="password"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && saveApiKey()}
+                placeholder="sk-ant-..."
+                style={{ flex: 1, border: `2px solid ${EB.gray200}`, borderRadius: 8, padding: "8px 12px", fontFamily: "'Trebuchet MS', sans-serif", fontSize: 14, outline: "none" }}
+              />
+              <Btn onClick={saveApiKey} variant="primary">{apiKeySaved ? "✓ Saved" : "Save"}</Btn>
+            </div>
+          </div>
 
           {/* Locations */}
           <div style={{ background: EB.white, borderRadius: 12, border: `1px solid ${EB.gray200}`, padding: 24, marginBottom: 24 }}>
