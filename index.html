@@ -101,23 +101,12 @@ ${inputText}`,
     // ── Components ─────────────────────────────────────────────────────────
 
     function Logo({ size = 28 }) {
-      const h = Math.round(size * 1.7);
-      const w = Math.round(h * 360 / 88);
       return (
-        <div style={{ background: EB.white, borderRadius: 8, padding: "5px 12px", display: "inline-flex" }}>
-          <svg viewBox="0 0 360 88" width={w} height={h} xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="navLogoGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#7B2FBE" />
-                <stop offset="100%" stopColor="#C026D3" />
-              </linearGradient>
-            </defs>
-            <text x="8" y="54" fontFamily="'Nunito', 'Arial Black', Arial, sans-serif" fontWeight="800" fontSize="54" fill="#1B2464" letterSpacing="-0.5">employbridge</text>
-            <text x="318" y="20" fontFamily="Arial, sans-serif" fontWeight="400" fontSize="18" fill="#1B2464">™</text>
-            <path d="M 10 62 Q 180 54 350 63" stroke="url(#navLogoGrad)" strokeWidth="4" fill="none" strokeLinecap="round" />
-            <text x="180" y="82" textAnchor="middle" fontFamily="'Nunito', Arial, sans-serif" fontWeight="600" fontSize="16" fill="#1B2464">powered by Bluecrew</text>
-          </svg>
-        </div>
+        <img
+          src="employbridge_logo.png"
+          alt="Employbridge"
+          style={{ height: Math.round(size * 1.7), width: "auto" }}
+        />
       );
     }
 
@@ -758,18 +747,7 @@ ${inputText}`,
             {/* Header */}
             <div style={{ textAlign: "center", marginBottom: 28 }}>
               <div style={{ marginBottom: 16, display: "flex", justifyContent: "center" }}>
-                <svg viewBox="0 0 360 88" width={295} height={72} xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <linearGradient id="exportLogoGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#7B2FBE" />
-                      <stop offset="100%" stopColor="#C026D3" />
-                    </linearGradient>
-                  </defs>
-                  <text x="8" y="54" fontFamily="'Nunito', 'Arial Black', Arial, sans-serif" fontWeight="800" fontSize="54" fill="#1B2464" letterSpacing="-0.5">employbridge</text>
-                  <text x="318" y="20" fontFamily="Arial, sans-serif" fontWeight="400" fontSize="18" fill="#1B2464">™</text>
-                  <path d="M 10 62 Q 180 54 350 63" stroke="url(#exportLogoGrad)" strokeWidth="4" fill="none" strokeLinecap="round" />
-                  <text x="180" y="82" textAnchor="middle" fontFamily="'Nunito', Arial, sans-serif" fontWeight="600" fontSize="16" fill="#1B2464">powered by Bluecrew</text>
-                </svg>
+                <img src="employbridge_logo.png" alt="Employbridge" style={{ height: 72, width: "auto" }} />
               </div>
               <p style={{ color: EB.purple, fontSize: 13, margin: 0, lineHeight: 1.6, fontFamily: "'Trebuchet MS', sans-serif" }}>
                 Local {locLabel} talent interested in new opportunities. We're happy to make introductions and schedule conversations if you're interested. We also have additional candidates available, so if you don't see the skill set you're looking for, let's connect and discuss your openings and how we can partner.
@@ -857,18 +835,7 @@ ${inputText}`,
 </head>
 <body>
   <div class="header">
-    <svg viewBox="0 0 360 88" width="295" height="72" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto">
-      <defs>
-        <linearGradient id="printLogoGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#7B2FBE"/>
-          <stop offset="100%" stop-color="#C026D3"/>
-        </linearGradient>
-      </defs>
-      <text x="8" y="54" font-family="'Nunito', 'Arial Black', Arial, sans-serif" font-weight="800" font-size="54" fill="#1B2464" letter-spacing="-0.5">employbridge</text>
-      <text x="318" y="20" font-family="Arial, sans-serif" font-weight="400" font-size="18" fill="#1B2464">&#x2122;</text>
-      <path d="M 10 62 Q 180 54 350 63" stroke="url(#printLogoGrad)" stroke-width="4" fill="none" stroke-linecap="round"/>
-      <text x="180" y="82" text-anchor="middle" font-family="'Nunito', Arial, sans-serif" font-weight="600" font-size="16" fill="#1B2464">powered by Bluecrew</text>
-    </svg>
+    <img src="employbridge_logo.png" alt="Employbridge" style="height:72px;width:auto;display:block;margin:0 auto" />
     <p class="intro">Local ${locLabel} talent interested in new opportunities. We're happy to make introductions and schedule conversations if you're interested. We also have additional candidates available, so if you don't see the skill set you're looking for, let's connect and discuss your openings and how we can partner.</p>
   </div>
   ${rows}
