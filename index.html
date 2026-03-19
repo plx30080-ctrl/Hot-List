@@ -57,45 +57,23 @@
     };
     const save = (key, val) => localStorage.setItem(key, JSON.stringify(val));
 
-    // ── Claude API call ────────────────────────────────────────────────────
+    // ── Backend worker URL ─────────────────────────────────────────────────
+    // After deploying worker.js to Cloudflare, paste your worker URL here.
+    // Example: "https://employbridge-hotlist.your-subdomain.workers.dev"
+    const WORKER_URL = "https://employbridge-hotlist.plx30080.workers.dev";
+
+    // ── Claude API call (via backend proxy) ────────────────────────────────
     async function generateBullets(inputText) {
-      const apiKey = localStorage.getItem("eb_api_key") || "";
-      if (!apiKey) throw new Error("NO_API_KEY");
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch(WORKER_URL, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": apiKey,
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-access": "true",
-        },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          messages: [
-            {
-              role: "user",
-              content: `You are a staffing recruiter writing a candidate hot list for Employbridge Staffing. Given the following candidate notes or resume text, generate EXACTLY 5 concise bullet points that sell this candidate to potential employers. Each bullet should highlight a specific skill, experience, or quality. Also extract: role title (e.g. "CNC Machinist", "Maintenance Technician"), candidate ID if mentioned, pay rate if mentioned, and shift preference if mentioned.
-
-Respond ONLY with valid JSON, no markdown, no extra text:
-{
-  "title": "Role Title",
-  "id": "candidate id or empty string",
-  "payRate": "e.g. $30/HR or empty string",
-  "shift": "e.g. 1st shift or empty string",
-  "bullets": ["bullet 1", "bullet 2", "bullet 3", "bullet 4", "bullet 5"]
-}
-
-Candidate info:
-${inputText}`,
-            },
-          ],
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ inputText }),
       });
-      const data = await res.json();
-      const text = data.content?.[0]?.text || "";
-      const clean = text.replace(/```json|```/g, "").trim();
-      return JSON.parse(clean);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `Server error ${res.status}`);
+      }
+      return res.json();
     }
 
     // ── Components ─────────────────────────────────────────────────────────
@@ -275,11 +253,7 @@ ${inputText}`,
           const result = await generateBullets(inputText);
           setPreview(result);
         } catch (e) {
-          if (e.message === "NO_API_KEY") {
-            setError("No API key set. Please add your Anthropic API key in the Settings tab.");
-          } else {
-            setError("Could not parse candidate. Please check your input and try again.");
-          }
+          setError(e.message || "Could not parse candidate. Please check your input and try again.");
         } finally {
           setLoading(false);
         }
@@ -848,14 +822,6 @@ ${inputText}`,
     function SettingsPage({ locations, setLocations, industries, setIndustries }) {
       const [newLoc, setNewLoc] = useState("");
       const [newInd, setNewInd] = useState("");
-      const [apiKey, setApiKey] = useState(() => localStorage.getItem("eb_api_key") || "");
-      const [apiKeySaved, setApiKeySaved] = useState(false);
-
-      const saveApiKey = () => {
-        localStorage.setItem("eb_api_key", apiKey.trim());
-        setApiKeySaved(true);
-        setTimeout(() => setApiKeySaved(false), 2000);
-      };
 
       const addLocation = () => {
         if (!newLoc.trim()) return;
@@ -894,27 +860,6 @@ ${inputText}`,
           <p style={{ color: EB.gray600, fontSize: 14, marginBottom: 28 }}>
             Manage markets and industries. Changes take effect immediately.
           </p>
-
-          {/* API Key */}
-          <div style={{ background: EB.white, borderRadius: 12, border: `1px solid ${EB.gray200}`, padding: 24, marginBottom: 24 }}>
-            <h3 style={{ fontFamily: "'Trebuchet MS', sans-serif", color: EB.purple, marginBottom: 8, fontSize: 16 }}>
-              Anthropic API Key
-            </h3>
-            <p style={{ color: EB.gray600, fontSize: 13, marginBottom: 14 }}>
-              Required to generate candidate bullets. Your key is stored only in this browser and never sent anywhere except directly to Anthropic.
-            </p>
-            <div style={{ display: "flex", gap: 10 }}>
-              <input
-                type="password"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && saveApiKey()}
-                placeholder="sk-ant-..."
-                style={{ flex: 1, border: `2px solid ${EB.gray200}`, borderRadius: 8, padding: "8px 12px", fontFamily: "'Trebuchet MS', sans-serif", fontSize: 14, outline: "none" }}
-              />
-              <Btn onClick={saveApiKey} variant="primary">{apiKeySaved ? "✓ Saved" : "Save"}</Btn>
-            </div>
-          </div>
 
           {/* Locations */}
           <div style={{ background: EB.white, borderRadius: 12, border: `1px solid ${EB.gray200}`, padding: 24, marginBottom: 24 }}>
