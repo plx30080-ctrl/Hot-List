@@ -7,6 +7,7 @@
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/mammoth@1/mammoth.browser.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: #F9F8FF; }
@@ -229,14 +230,68 @@ ${inputText}`,
       const [preview, setPreview] = useState(null);
       const [error, setError] = useState("");
       const [added, setAdded] = useState(false);
+      const [batch, setBatch] = useState(null); // { total, current, results: [{name, success, title?}] }
       const fileRef = useRef();
 
-      const handleFile = (e) => {
-        const f = e.target.files[0];
-        if (!f) return;
-        const reader = new FileReader();
-        reader.onload = (ev) => setInputText(ev.target.result);
-        reader.readAsText(f);
+      const extractText = async (file) => {
+        if (file.name.toLowerCase().endsWith(".docx")) {
+          const arrayBuffer = await file.arrayBuffer();
+          const result = await mammoth.extractRawText({ arrayBuffer });
+          return result.value;
+        }
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (ev) => resolve(ev.target.result);
+          reader.onerror = reject;
+          reader.readAsText(file);
+        });
+      };
+
+      const handleFile = async (e) => {
+        const files = Array.from(e.target.files);
+        e.target.value = "";
+        if (!files.length) return;
+
+        if (files.length === 1) {
+          try {
+            const text = await extractText(files[0]);
+            setInputText(text);
+          } catch {
+            setError("Could not read file. Please try a different file.");
+          }
+          return;
+        }
+
+        // Batch mode: auto-generate and add all candidates
+        setBatch({ total: files.length, current: 0, results: [] });
+        setError("");
+        setPreview(null);
+        for (let i = 0; i < files.length; i++) {
+          setBatch((b) => ({ ...b, current: i + 1 }));
+          try {
+            const text = await extractText(files[i]);
+            const result = await generateBullets(text);
+            const candidate = {
+              id: Date.now().toString(),
+              candidateId: result.id || "",
+              title: result.title,
+              payRate: result.payRate || "",
+              shift: result.shift || "",
+              bullets: result.bullets,
+              location,
+              industry,
+              addedAt: new Date().toISOString(),
+            };
+            setCandidates((prev) => {
+              const updated = [...prev, candidate];
+              save("eb_candidates", updated);
+              return updated;
+            });
+            setBatch((b) => ({ ...b, results: [...b.results, { name: files[i].name, success: true, title: result.title }] }));
+          } catch {
+            setBatch((b) => ({ ...b, results: [...b.results, { name: files[i].name, success: false }] }));
+          }
+        }
       };
 
       const handleGenerate = async () => {
@@ -335,13 +390,37 @@ ${inputText}`,
 
           <div style={{ display: "flex", gap: 10, marginBottom: 24, flexWrap: "wrap" }}>
             <Btn onClick={() => fileRef.current.click()} variant="secondary">
-              📎 Upload Text File
+              📎 Upload Resume(s)
             </Btn>
-            <input ref={fileRef} type="file" accept=".txt,.doc,.docx" style={{ display: "none" }} onChange={handleFile} />
+            <input ref={fileRef} type="file" accept=".txt,.doc,.docx" multiple style={{ display: "none" }} onChange={handleFile} />
             <Btn onClick={handleGenerate} disabled={!inputText.trim() || loading} variant="primary">
               {loading ? "⏳ Generating..." : "✨ Generate Bullets"}
             </Btn>
           </div>
+
+          {batch && (
+            <div style={{ background: EB.gray100, borderRadius: 10, padding: 16, marginBottom: 16 }}>
+              {batch.current < batch.total ? (
+                <div style={{ color: EB.purple, fontWeight: 700, fontSize: 14 }}>
+                  ⏳ Processing {batch.current} of {batch.total} resumes...
+                </div>
+              ) : (
+                <>
+                  <div style={{ color: EB.gray800, fontWeight: 700, fontSize: 14, marginBottom: 8 }}>
+                    Batch complete: {batch.results.filter((r) => r.success).length} of {batch.total} added to hot list
+                  </div>
+                  {batch.results.map((r, i) => (
+                    <div key={i} style={{ fontSize: 13, color: r.success ? "#065F46" : "#DC2626", marginBottom: 4 }}>
+                      {r.success ? "✅" : "❌"} {r.name}{r.title ? ` → ${r.title}` : ""}
+                    </div>
+                  ))}
+                  <div style={{ marginTop: 8 }}>
+                    <Btn onClick={() => setBatch(null)} variant="secondary">Dismiss</Btn>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
 
           {error && (
             <div style={{ background: "#FEE2E2", color: "#DC2626", borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 14 }}>
