@@ -77,38 +77,11 @@ ${inputText}`,
 function Logo({ size = 28 }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-      <div
-        style={{
-          background: EB.white,
-          borderRadius: 8,
-          padding: "4px 10px",
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
-        <span
-          style={{
-            fontFamily: "'Trebuchet MS', sans-serif",
-            fontWeight: 900,
-            fontSize: size,
-            color: EB.purple,
-            letterSpacing: "-0.5px",
-          }}
-        >
-          employ
-        </span>
-        <span
-          style={{
-            fontFamily: "'Trebuchet MS', sans-serif",
-            fontWeight: 900,
-            fontSize: size,
-            color: EB.accent,
-            letterSpacing: "-0.5px",
-          }}
-        >
-          bridge
-        </span>
-      </div>
+      <img
+        src="employbridge_logo.png"
+        alt="Employbridge"
+        style={{ height: size * 1.5, width: "auto" }}
+      />
     </div>
   );
 }
@@ -751,9 +724,7 @@ function buildPrintHTML(candidates, locLabel) {
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Trebuchet MS', Arial, sans-serif; padding: 40px; max-width: 750px; margin: 0 auto; }
     .header { text-align: center; margin-bottom: 28px; }
-    .logo { font-family: 'Trebuchet MS', Arial, sans-serif; font-size: 40px; font-weight: 900; }
-    .logo .purple { color: #4B2E83; }
-    .logo .accent { color: #8B5CF6; }
+    .logo img { height: 60px; width: auto; }
     .divider { width: 60px; height: 3px; background: #8B5CF6; margin: 10px auto; }
     .intro { color: #4B2E83; font-size: 13px; line-height: 1.6; text-align: center; }
     .candidate { margin-bottom: 26px; }
@@ -766,7 +737,7 @@ function buildPrintHTML(candidates, locLabel) {
 </head>
 <body>
   <div class="header">
-    <div class="logo"><span class="purple">employ</span><span class="accent">bridge</span></div>
+    <div class="logo"><img src="employbridge_logo.png" alt="Employbridge" /></div>
     <div class="divider"></div>
     <p class="intro">Local ${locLabel} talent interested in new opportunities. We're happy to make introductions and schedule conversations if you're interested. We also have additional candidates available, so if you don't see the skill set you're looking for, let's connect and discuss your openings and how we can partner.</p>
   </div>
