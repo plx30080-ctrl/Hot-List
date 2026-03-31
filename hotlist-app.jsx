@@ -612,6 +612,11 @@ function EditForm({ candidate, locations, industries, onSave, onCancel }) {
     setForm({ ...form, bullets });
   };
 
+  const removeBullet = (i) => {
+    const bullets = form.bullets.filter((_, idx) => idx !== i);
+    setForm({ ...form, bullets });
+  };
+
   return (
     <div
       style={{
@@ -653,6 +658,7 @@ function EditForm({ candidate, locations, industries, onSave, onCancel }) {
         <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8, alignItems: "flex-start" }}>
           <span style={{ color: EB.purple, marginTop: 8, flexShrink: 0 }}>•</span>
           <textarea value={b} onChange={(e) => setBullet(i, e.target.value)} rows={2} style={{ flex: 1, border: `1px solid ${EB.gray200}`, borderRadius: 6, padding: "6px 10px", fontSize: 14, fontFamily: "'Trebuchet MS', sans-serif", outline: "none", resize: "vertical" }} />
+          <button onClick={() => removeBullet(i)} title="Remove bullet" style={{ background: "none", border: "none", cursor: "pointer", color: EB.gray400, fontSize: 16, padding: "6px 2px", flexShrink: 0, lineHeight: 1 }}>×</button>
         </div>
       ))}
 
