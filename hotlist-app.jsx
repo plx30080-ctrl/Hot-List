@@ -479,6 +479,7 @@ function AddCandidatePage({ locations, industries, candidates, setCandidates }) 
                     outline: "none",
                   }}
                 />
+                <button onClick={() => setPreview({ ...preview, bullets: preview.bullets.filter((_, idx) => idx !== i) })} title="Remove bullet" style={{ background: "none", border: "none", cursor: "pointer", color: EB.gray400, fontSize: 16, padding: "6px 2px", flexShrink: 0, lineHeight: 1 }}>×</button>
               </div>
             ))}
           </div>
