@@ -191,12 +191,36 @@ function AddCandidatePage({ locations, industries, candidates, setCandidates }) 
     });
   };
 
+  const loadPdfJs = () => {
+    if (window.pdfjsLib) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+      s.onload = resolve;
+      s.onerror = () => reject(new Error("Failed to load pdf.js"));
+      document.head.appendChild(s);
+    });
+  };
+
   const extractText = async (file) => {
     if (file.name.toLowerCase().endsWith(".docx")) {
       await loadMammoth();
       const arrayBuffer = await file.arrayBuffer();
       const result = await window.mammoth.extractRawText({ arrayBuffer });
       return result.value;
+    }
+    if (file.name.toLowerCase().endsWith(".pdf")) {
+      await loadPdfJs();
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const pages = [];
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        pages.push(content.items.map((item) => item.str).join(" "));
+      }
+      return pages.join("\n");
     }
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -347,7 +371,7 @@ function AddCandidatePage({ locations, industries, candidates, setCandidates }) 
         <Btn onClick={() => fileRef.current.click()} variant="secondary">
           📎 Upload Resume(s)
         </Btn>
-        <input ref={fileRef} type="file" accept=".txt,.doc,.docx" multiple style={{ display: "none" }} onChange={handleFile} />
+        <input ref={fileRef} type="file" accept=".txt,.doc,.docx,.pdf" multiple style={{ display: "none" }} onChange={handleFile} />
         <Btn onClick={handleGenerate} disabled={!inputText.trim() || loading} variant="primary">
           {loading ? "⏳ Generating..." : "✨ Generate Bullets"}
         </Btn>
