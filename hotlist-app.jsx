@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
-// ── Employbridge brand colors ──────────────────────────────────────────
+// ── Brand colors ──────────────────────────────────────────────────────
 const EB = {
   purple: "#4B2E83",
   purpleLight: "#6B46C1",
@@ -49,7 +49,7 @@ async function generateBullets(inputText) {
       messages: [
         {
           role: "user",
-          content: `You are a staffing recruiter writing a candidate hot list for Employbridge Staffing. Given the following candidate notes or resume text, generate EXACTLY 5 concise bullet points that sell this candidate to potential employers. Each bullet should highlight a specific skill, experience, or quality. Also extract: role title (e.g. "CNC Machinist", "Maintenance Technician"), candidate ID if mentioned, pay rate if mentioned, and shift preference if mentioned.
+          content: `You are a staffing recruiter writing a candidate hot list. Given the following candidate notes or resume text, generate EXACTLY 5 concise bullet points that sell this candidate to potential employers. Each bullet should highlight a specific skill, experience, or quality. Also extract: role title (e.g. "CNC Machinist", "Maintenance Technician"), candidate ID if mentioned, pay rate if mentioned, and shift preference if mentioned.
 
 Respond ONLY with valid JSON, no markdown, no extra text:
 {
@@ -77,11 +77,7 @@ ${inputText}`,
 function Logo({ size = 28 }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-      <img
-        src="employbridge_logo.png"
-        alt="Employbridge"
-        style={{ height: size * 1.5, width: "auto" }}
-      />
+      <span style={{ fontFamily: "'Trebuchet MS', sans-serif", fontWeight: 700, fontSize: size, color: EB.purple, letterSpacing: -0.5 }}>Hot List</span>
     </div>
   );
 }
@@ -812,9 +808,6 @@ function ExportPage({ locations, industries, candidates }) {
         ))}
 
         <div style={{ marginTop: 32, borderTop: `1px solid ${EB.gray200}`, paddingTop: 12, textAlign: "left" }}>
-          <span style={{ fontFamily: "'Trebuchet MS', sans-serif", fontSize: 11, color: EB.gray400 }}>
-            Presented by Employbridge Staffing
-          </span>
         </div>
       </div>
     </div>
@@ -839,7 +832,7 @@ function buildPrintHTML(candidates, locLabel) {
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Employbridge Hot List – ${locLabel}</title>
+  <title>Hot List – ${locLabel}</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Trebuchet+MS&display=swap');
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -858,12 +851,12 @@ function buildPrintHTML(candidates, locLabel) {
 </head>
 <body>
   <div class="header">
-    <div class="logo"><img src="employbridge_logo.png" alt="Employbridge" /></div>
+    <h1 style="color:#4B2E83;font-family:'Trebuchet MS',sans-serif;font-size:24px;margin-bottom:6px;">Hot List</h1>
     <div class="divider"></div>
     <p class="intro">Local ${locLabel} talent interested in new opportunities. We're happy to make introductions and schedule conversations if you're interested. We also have additional candidates available, so if you don't see the skill set you're looking for, let's connect and discuss your openings and how we can partner.</p>
   </div>
   ${rows}
-  <div class="footer">Presented by Employbridge Staffing</div>
+  <div class="footer"></div>
 </body>
 </html>`;
 }

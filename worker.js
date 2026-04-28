@@ -1,5 +1,5 @@
 /**
- * Cloudflare Worker – Anthropic API proxy for Employbridge Hot List Generator
+ * Cloudflare Worker – Anthropic API proxy for Hot List Generator
  *
  * Deploy steps:
  *   1. npm install -g wrangler
@@ -38,7 +38,7 @@ export default {
       return json({ error: "inputText is required" }, 400);
     }
 
-    const prompt = `You are a staffing recruiter writing a candidate hot list for Employbridge Staffing. Given the following candidate notes or resume text, generate EXACTLY 5 concise bullet points that sell this candidate to potential employers. Each bullet should highlight a specific skill, experience, or quality. Also extract: role title (e.g. "CNC Machinist", "Maintenance Technician"), candidate ID if mentioned, pay rate if mentioned, and shift preference if mentioned.
+    const prompt = `You are a staffing recruiter writing a candidate hot list. Given the following candidate notes or resume text, generate EXACTLY 5 concise bullet points that sell this candidate to potential employers. Each bullet should highlight a specific skill, experience, or quality. Also extract: role title (e.g. "CNC Machinist", "Maintenance Technician"), candidate ID if mentioned, pay rate if mentioned, and shift preference if mentioned.
 
 Respond ONLY with valid JSON, no markdown, no extra text:
 {
