@@ -18,6 +18,11 @@ jobs:
           const url = new URL('/rest/v1/hot_list_entries?select=id&limit=1', process.env.SUPABASE_URL);
           const req = https.get(url, {
             headers: { 'apikey': process.env.SUPABASE_KEY }
-          }, res => { console.log('Status:', res.statusCode); });
+          }, res => {
+            console.log('Status:', res.statusCode);
+            res.resume();
+            res.on('end', () => console.log('Done'));
+          });
+          req.on('error', err => { console.error(err); process.exit(1); });
           req.end();
           "
